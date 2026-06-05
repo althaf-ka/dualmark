@@ -2,14 +2,8 @@ name: Conformance (E2E)
 
 on:
   push:
-    branches: [main]
   pull_request:
-    branches: [main]
-    paths:
-      - "packages/**"
-      - "examples/**"
-      - "spec/**"
-      - ".github/workflows/conformance.yml"
+    branches: [main, test-pr-comment]
 
 env:
   TURBO_TELEMETRY_DISABLED: 1
@@ -146,3 +140,16 @@ jobs:
           done
           kill $DOCS_PID
           exit $fail
+
+  action-dogfood:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Smoke test verify action against dualmark.dev
+        uses: ./actions/verify
+        with:
+          url: https://dualmark.dev
+          level: standard
+          comment-on-pr: true
+          fail-on-regression: true
